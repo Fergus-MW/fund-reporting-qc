@@ -117,7 +117,7 @@ class UserDatabaseTests(unittest.TestCase):
                     attacker.get_source_bytes('collision')
                 client=TestClient(app)
                 path=f'/projects/{project}/graph'
-                self.assertEqual(client.get(path,headers={'X-Graph-Identity':assertion('unknown-user',path)}).status_code,503)
+                self.assertEqual(client.get(path,headers={'X-Graph-Identity':assertion('unknown-user',path)}).status_code,404)
                 for user in users:
                     response=client.get(path,headers={'X-Graph-Identity':assertion(user,path)})
                     self.assertEqual(response.status_code,200)
