@@ -1,6 +1,24 @@
-# Private markets QC
+<div align="center">
+
+<img src="docs/media/banner.svg" alt="Private markets QC" width="100%">
+
+<br>
+
+[![Python 3.11](https://img.shields.io/badge/python-3.11-3776AB?logo=python&logoColor=white)](services/ingestion/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-ingestion-009688?logo=fastapi&logoColor=white)](services/ingestion/app/main.py)
+[![SurrealDB](https://img.shields.io/badge/SurrealDB-graph%20%2B%20projects-FF00A0?logo=surrealdb&logoColor=white)](compose.yaml)
+[![Vite](https://img.shields.io/badge/Vite-frontend-646CFF?logo=vite&logoColor=white)](frontend/)
+[![Terraform](https://img.shields.io/badge/Terraform-Cloud%20Run-7B42BC?logo=terraform&logoColor=white)](infrastructure/)
+[![Checker](https://img.shields.io/badge/checker-deterministic-ff8262)](#the-checkers)
+[![LLMs on the evaluation path](https://img.shields.io/badge/LLMs%20on%20the%20eval%20path-0-2ea44f)](#the-checkers)
 
 **Quarterly fund reporting, checked against the legal documents that govern it.**
+
+[**▶ Watch the demo**](#-see-it-run) · [**Run it locally**](#run-locally) · [**Demo deck**](Brain_and_Gate_demo.pdf) · [**Contributing**](AGENTS.md)
+
+</div>
+
+---
 
 Every quarter a fund administrator delivers a draft to the fund manager: financial
 statements, a capital account schedule, a loader file. Someone has to decide whether it
@@ -28,14 +46,9 @@ So the system reads the documents.
 
 ## ▶ Try it
 
-**[Sign in and connect your workspace →](https://frontend-gucopvqxoq-nw.a.run.app/)**
-
-Sign in with Google and it starts building your graph. Nothing to install. Your
-documents stay in your own isolated database, and the connection asks only for
-read access to Gmail and Drive.
-
-While the Google consent screen is unverified, sign-in works for accounts added as
-test users — ask the team to add yours if it turns you away.
+The hosted environment has been taken down. [Run it locally](#run-locally) instead: `make up`
+brings up the whole stack, and [Reproduce the demo](#reproduce-the-demo) seeds a signed-in
+workspace from the partner fixtures.
 
 **Or read the demo deck first: [Brain and Gate](Brain_and_Gate_demo.pdf)** (6 pages) —
 the problem in fund managers' own words, the quarterly GL reporting workflow it plugs
@@ -44,26 +57,63 @@ of one investor email changing the terms.
 
 ---
 
+## ▶ See it run
+
+<div align="center">
+
+<a href="docs/media/demo.mp4"><img src="docs/media/demo.gif" alt="Demo: the workspace knowledge graph, then the full Q2 project graph" width="100%"></a>
+
+<sub><b><a href="docs/media/demo.mp4">Full-quality MP4</a></b> · the workspace and Q2 project knowledge graphs, recorded against the local stack (<code>make up</code>) using the Kestrel Lammwick partner fixtures. See <a href="#reproduce-the-demo">Reproduce the demo</a>.</sub>
+
+</div>
+
+One fund, two quarters, one investor's side letter. The administrator's arithmetic is
+internally consistent in both drafts, so a footing check passes them. Read against the
+ratified terms, both drafts are wrong:
+
+| Draft | Without terms (arithmetic only) | With ratified terms | Amount at stake (tier a) | What it caught |
+|---|:---:|:---:|---:|---|
+| **Q2 2026** (`as_of` 30 Jun) | 0 findings · 4/4 passed | **1 finding** · 10/11 passed | **USD 22,149.55** | `TC03`: Trentcombe's fee was drawn *outside* commitment, but side letter clause 2(b) says *inside*, so unfunded commitment is overstated |
+| **Q3 2026** (`as_of` 30 Sep) | 0 findings · 4/4 passed | **4 findings** · 7/11 passed | **USD 9,296.43** | `TC01` rate, `TC02` basis, `TC05` offset, `TC09` net fee. An amended side letter, effective 1 July, arrived by email later and the draft never picked it up |
+
+The gap between those two columns is what the terms register adds. It is shown
+side by side on the dashboard, not just claimed in this README.
+
+<table>
+<tr>
+<td width="50%"><img src="docs/media/q2.png" alt="Q2 dashboard: 0 findings without terms, 1 finding with terms, USD 22,149.55"><br><sub><b>QC dashboard, Q2.</b> Arithmetic alone and against the ratified terms, side by side</sub></td>
+<td width="50%"><img src="docs/media/q3.png" alt="Q3 dashboard: 4 findings on Trentcombe's row"><br><sub><b>QC dashboard, Q3.</b> The amended side letter applied from its effective date</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/media/q2graph.png" alt="Project graph for Q2 2026"><br><sub><b>Project graph.</b> Copied evidence, the terms snapshot, ratifications and every run</sub></td>
+<td width="50%"><img src="docs/media/graphs.png" alt="Graph list: workspace plus one graph per project"><br><sub><b>Two levels of graph.</b> Your live workspace, plus one frozen graph per project</sub></td>
+</tr>
+</table>
+
+---
+
 ## What it actually does
 
+```mermaid
+flowchart LR
+    A["🔑 <b>Connect</b><br/>Google sign-in, once<br/>Gmail + Drive read-only"] --> B["📥 <b>Ingest</b><br/>agreements, side letters,<br/>statements, scans"]
+    B --> C["🕸️ <b>Workspace graph</b><br/>people · companies ·<br/>funds · projects"]
+    C --> D["✍️ <b>Register</b><br/>proposed terms,<br/>ratified by a named person"]
+    D --> E["🧊 <b>Materialise</b><br/>frozen project graph<br/>+ terms snapshot"]
+    E --> F["⚖️ <b>Check</b><br/>deterministic gate,<br/>no network, no model"]
+    F --> G["📊 <b>Findings</b><br/>tiered, cited,<br/>amount at stake"]
+    G -- "correct and re-run" --> E
+    classDef det fill:#2a1720,stroke:#ff8262,color:#f5f1ec
+    class E,F,G det
 ```
-1. CONNECT   You sign in with Google. Once.
-                ↓
-2. INGEST    It reads your Gmail and Google Drive — agreements, side letters,
-             statements, spreadsheets, scans — and builds a knowledge graph of
-             the people, companies, funds and quarterly projects inside them.
-                ↓
-3. REGISTER  From the legal documents it proposes terms: this investor's
-             management fee is X, from this date, per this clause. A named
-             human ratifies each one. Nothing unratified is ever used.
-                ↓
-4. CHECK     Point it at a draft. It runs a deterministic checker against the
-             terms that were in force on that draft's date, and returns a
-             tiered, cited findings report.
-                ↓
-5. LOOP      You correct and re-run. The findings curve down across turns,
-             and the register you built is reused every quarter after.
-```
+
+| Step | What happens | Where |
+|---|---|---|
+| **Connect** | One Google consent for Gmail and Drive. Tokens go to a per-account secret and never reach the browser | [`frontend/server/auth.mjs`](frontend/server/auth.mjs) |
+| **Ingest** | Connectors archive the originals, then ingestion parses them and builds the knowledge graph | [`services/connectors/`](services/connectors/), [`app/extraction.py`](services/ingestion/app/extraction.py) |
+| **Register** | Terms are proposed from documents (*this investor's fee is X, from this date, per this clause*). Nothing unratified is ever used | [`app/term_proposals.py`](services/ingestion/app/term_proposals.py), [`app/terms.py`](services/ingestion/app/terms.py) |
+| **Check** | The gate runs against the terms in force on the draft's date and returns a tiered, cited findings report | [`app/workflows.py`](services/ingestion/app/workflows.py), [`app/gates/`](services/ingestion/app/gates/) |
+| **Loop** | Correct and re-run. Findings fall turn by turn, and the register is reused every quarter after | [`/dashboard`](#6-you-read-the-result-on-the-qc-dashboard) |
 
 Two design commitments make it usable rather than merely clever:
 
@@ -153,7 +203,7 @@ from day one; it simply becomes a real, frozen graph the first time a workflow r
 
 ### 1. You connect — one button, once
 
-[**frontend-gucopvqxoq-nw.a.run.app**](https://frontend-gucopvqxoq-nw.a.run.app/) is a
+The frontend is a
 single page with a single Google button. It asks for Gmail and Drive **read** access
 together, in one consent screen, because one authorization covers every connector — you
 are never sent back to Google a second time to add another integration. Partial consent
@@ -277,29 +327,27 @@ relates to. You don't forward things twice.
 
 ### 6. You read the result on the QC dashboard
 
-`/dashboard` is the main product surface. Pick a project and you get one run:
+`/dashboard` is the main product surface. Pick a project and you get one run, with a
+picker to switch between that project's runs:
 
-- **Header** — the draft's filename and hash, the entity, the as-of date, which terms
-  snapshot was used and how many facts were in force, the run ID, and which **turn** this
-  is for this draft.
-- **Scoreboard** — counts by tier, passes out of checks run, and the total amount at
-  stake. Where both runs exist it shows the pair side by side: **"No brain"** (arithmetic
-  only, no register) against **"Brain on"** (checked against the terms in force). The gap
-  between those two columns *is* the value the register adds — demonstrated, not asserted.
-- **Findings**, grouped and ordered by tier then by amount at stake:
-  - **Tier a** — changes a balance, an allocation, or the scope
-  - **Tier b** — changes a reported line, or must be resolved before release
-  - **Tier c** — hygiene
-  - **Decisions owed** — *not errors*: a blank the administrator must fill
-  - **Passes** — shown, not hidden
-  - **Not run in this mode** — skipped, never silently counted as passed
-- **Each non-pass expands** to the evidence — the values compared — with a decision
-  control: fix the draft, accept with a written reason, or escalate.
-- **History strip** — `turn 1: 43 findings → turn 2: 11 → turn 3: 2`. Reducing that curve
-  is the entire point of the product, so it is on the page.
-- **Artifacts** — download the exact inputs, the checker's own code and output, the
-  findings JSON, and a standalone Markdown report that reads correctly outside the system
-  that produced it and can be attached to an email.
+- **Header**: the project and quarter, and the draft's filename.
+- **Scoreboard**: findings, passes out of checks run, and the amount at stake, which is
+  the tier a total only, because tier b findings are parts of the same money. Where both
+  runs exist for the same draft bytes, it shows the pair side by side: **Without terms**
+  (arithmetic only, no register) against **With terms** (checked against the ratified
+  terms in force). The gap between those two columns *is* the value the register adds.
+- **Needs attention**: `FAIL` and `WARN`, each tagged *Balance or allocation* (tier a),
+  *Reporting* (tier b) or *Hygiene* (tier c), with the investor and amount.
+  - **Decisions**: *not errors*. A blank the administrator must fill.
+  - **Passed**: shown, not hidden.
+  - **Not run**: skipped in this mode, never silently counted as passed.
+- **Each finding expands** to its evidence: the values compared and the clause cited.
+- **History**: findings per run for the same draft and mode (`1: 43 → 2: 11 → 3: 2`).
+  Bringing that number down is the point of the product, so the page shows it.
+- **Files**: download the exact inputs (draft, entity terms, terms snapshot), the
+  findings JSON, the checker log, and a standalone Markdown report that still makes sense
+  outside the system and can be attached to an email.
+- **Run details**: run ID, start time, draft hash, and the terms file used.
 
 A run that produced no checks never renders a scoreboard reading "0 errors caught" — it
 gets the header and the reason it stopped.
@@ -311,20 +359,29 @@ gets the header and the reason it stopped.
 
 ## Architecture
 
-```
-Browser ──▶ frontend (Node/Vite)  ──── OAuth, session, proxy, graph & QC UI
-                  │
-                  ▼  signed X-Graph-Identity + Cloud Run IAM
-            ingestion (FastAPI) ──── parse, graph, projects, workflows, gates
-                  │                        │
-                  ▼                        ▼
-            SurrealDB               model_gateway ──▶ Vertex / Gemini
-        markets/documents (canonical)
-        users/<user>      (per account)
-        projects/<id>     (per project)
-                  ▲
-      connectors (Cloud Run Jobs)  ──── Gmail + Drive importers
-      mail_agent (Cloud Run)       ──── AgentMail coordinator, Cloud Tasks
+```mermaid
+flowchart TB
+    U(["🧑‍💼 Reviewer / preparer"]) -->|browser| FE
+    U -->|"plain-English email"| MA
+    subgraph run["Cloud Run · europe-west2"]
+        FE["<b>frontend</b><br/>Node + Vite<br/>OAuth · session · proxy · graph &amp; QC UI"]
+        IN["<b>ingestion</b><br/>FastAPI<br/>parse · graph · projects · workflows"]
+        GW["<b>model_gateway</b><br/>sole Vertex AI holder<br/>AIMD concurrency · retries"]
+        MA["<b>mail_agent</b><br/>AgentMail coordinator<br/>Cloud Tasks jobs"]
+        CO["<b>connectors</b><br/>Cloud Run Jobs<br/>Gmail + Drive importers"]
+    end
+    FE -->|"signed X-Graph-Identity + IAM"| IN
+    MA --> IN
+    CO -->|"POST /sources"| IN
+    IN -->|"read &amp; explain only"| GW --> V[("Vertex / Gemini")]
+    IN --> DB
+    subgraph DB["SurrealDB"]
+        W[("user_&lt;sha256(tenant)&gt;<br/>workspace graph")]
+        P[("project_&lt;sha256(tenant:id)&gt;<br/>frozen project graphs")]
+    end
+    IN -.->|"subprocess · temp dir<br/>no network · no credentials"| G["⚖️ bundled gates<br/>terms_checks.py · eval_loader.py"]
+    classDef det fill:#2a1720,stroke:#ff8262,color:#f5f1ec
+    class G,P det
 ```
 
 | Service | Does |
@@ -376,7 +433,7 @@ credentials.
 Two gates are vendored under [`services/ingestion/app/gates/`](services/ingestion/app/gates/):
 
 - **Terms / side letters** — fee and commitment schedule checks. Runs in `terms` mode
-  or `arithmetic-only` mode; the pair is what the dashboard's "No brain / Brain on"
+  or `arithmetic-only` mode; the pair is what the dashboard's "Without terms / With terms"
   comparison renders. Entity and quarter are resolved from the workbook itself and
   validated against the project. Comparison uses `rtol=0` — a relative tolerance would
   let a large balance hide a real monetary error.
@@ -388,6 +445,29 @@ and no credentials in the environment. Results use `PASS` / `FAIL` / `WARN` / `D
 / `SKIPPED`. `completed` means the evaluation finished — not that the draft passed.
 Missing inputs, missing ratification or wrong scope produce a persisted `blocked` run;
 execution failure produces `failed`. Neither is ever reported as a pass.
+
+<details>
+<summary><b>The terms gate, check by check</b> (<code>TC00</code>–<code>TC10</code>)</summary>
+
+| Check | Tier | Mode | Asserts |
+|---|:---:|---|---|
+| `TC00` | a | terms | Every schedule investor has a register row in force on the as-of date (`DECISION` if not) |
+| `TC01` | b | terms | Rate applied equals the rate in the terms register |
+| `TC02` | b | terms | Fee basis applied (Commitment / Invested Capital) equals the register |
+| `TC03` | a | terms | Fee drawn inside or outside commitment as the terms say, and the unfunded roll-forward follows |
+| `TC04` | a | terms | Fee-exempt investors are charged nothing |
+| `TC05` | b | terms | Offset percentage applied equals the register |
+| `TC06` | a | both | Allocation share equals commitment share |
+| `TC07` | b | both | Gross fee = basis amount × rate / 4 |
+| `TC08` | b | both | Totals row foots to the column sums |
+| `TC09` | a | terms | Net fee equals the fee recomputed from the register (headline overcharge) |
+| `TC10` | a | both | Roll-forward foots: `called_end = start + calls + fee inside`, `unfunded = commitment − called` |
+
+Tier **a** changes a balance, an allocation or the scope. Tier **b** changes a report line
+or must be resolved before upload. In `arithmetic-only` mode the terms checks are
+reported as `SKIPPED`, which is why the Q2 and Q3 "without terms" runs read 4/4.
+
+</details>
 
 Run IDs are derived from the project, input IDs, gate code, package versions, mode and
 ratifications. An exact replay returns the existing run and does not increment the turn
@@ -445,9 +525,10 @@ ingestion `18080`, SurrealDB `18000`. `make clean` also deletes the database vol
 overwrites an existing file. Add `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`,
 `CONNECTOR_PROJECT` and `CONNECTOR_SERVICE_ACCOUNTS` there to enable sign-in.
 
-Six tests need a live database and are gated behind environment variables — they cover
-optimistic concurrency, identity, and per-user database isolation, which unit tests
-cannot:
+Seven tests need a live database and are gated behind environment variables. They
+cover optimistic concurrency, identity, migrations and per-user database isolation, which
+unit tests cannot. With the partner fixtures, five more cover the project workflow end to
+end: twelve in total.
 
 ```sh
 make up
@@ -472,6 +553,26 @@ The first ingestion image build is slow: it installs the parser stack and models
 Cloud Tasks has no emulator. `/api/ingestion/status` answers 503 locally and the
 progress view honestly reports progress as unavailable. Test its logic with
 `make test-mail`.
+
+### Reproduce the demo
+
+The [video](#-see-it-run) shows the knowledge graphs on this local stack, using the Kestrel Lammwick
+fixtures from the partner pack, seen from a signed-in workspace. No Google account is
+needed. The proxy only needs a valid `connection` cookie sealed with your local
+`SESSION_KEY`, and the ingestion service still verifies every signed identity assertion.
+
+```sh
+make up && make test-live                       # test-live builds .venv with the test pins
+# Seed one workspace: ingest the pack, create Q2 and Q3 projects, ratify, run both modes
+# (the full environment line is in the script's docstring)
+PYTHONPATH=services/ingestion .venv/bin/python scripts/demo/seed.py you@example.com /path/to/fixtures
+# Seal a session cookie for that workspace, then set it as `connection` on localhost:18081
+node scripts/demo/session.mjs you@example.com
+```
+
+`make test-live` with the fixtures asserts the figures the demo shows:
+`arithmetic=0 failures, Q2=1, Q3=4`, USD 22,149.55 at stake on Q2, run IDs stable on replay,
+and project databases that refuse each other's credentials.
 
 ## Document API
 
@@ -506,12 +607,8 @@ invented.
 
 ## Deployment
 
-Live services (`private-markets-hack`, `europe-west2`):
-
-| | |
-|---|---|
-| Frontend — public, this is the sign-up link | https://frontend-gucopvqxoq-nw.a.run.app |
-| Ingestion — IAM protected, not browsable | https://document-ingestion-gucopvqxoq-nw.a.run.app |
+The hosted services (`private-markets-hack`, `europe-west2`) have been taken down;
+`infrastructure/` still describes them.
 
 Terraform is the source of truth. Never click in the console, and never deploy
 application code from a workstation — commit and push, and let CI/CD own the image
