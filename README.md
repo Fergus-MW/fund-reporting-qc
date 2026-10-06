@@ -68,7 +68,7 @@ of one investor email changing the terms.
 
 <a href="docs/media/demo.mp4"><img src="docs/media/demo.gif" alt="Demo: knowledge graphs, then the QC dashboard for Q2 and Q3 2026" width="100%"></a>
 
-<sub><b><a href="docs/media/demo.mp4">Full-quality MP4 (63 s)</a></b> · recorded against the local stack (<code>make up</code>) using the Kestrel Lammwick partner fixtures. See <a href="#reproduce-the-demo">Reproduce the demo</a>.</sub>
+<sub><b><a href="docs/media/demo.mp4">Full-quality MP4 (44 s)</a></b> · recorded against the local stack (<code>make up</code>) using the Kestrel Lammwick partner fixtures. See <a href="#reproduce-the-demo">Reproduce the demo</a>.</sub>
 
 </div>
 
