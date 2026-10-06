@@ -6,6 +6,7 @@ from datetime import date
 from typing import Literal
 from urllib.parse import quote
 
+import httpx
 from fastapi import APIRouter, HTTPException, Query, Response
 from pydantic import Field
 
@@ -64,6 +65,12 @@ def local_store(project_id):
         raise HTTPException(422, str(error)) from None
     except HTTPException:
         raise
+    except httpx.HTTPStatusError as error:
+        # Project credentials are derived per identity, so a project that was never
+        # provisioned for this caller cannot be signed into: it is absent, not down.
+        if error.response.status_code == 401 and error.request.url.path.endswith("/signin"):
+            raise HTTPException(404, "Project not found in your workspace") from None
+        raise HTTPException(503, "Project unavailable; verify workflow database configuration") from None
     except Exception:
         raise HTTPException(503, "Project unavailable; verify workflow database configuration") from None
 
