@@ -311,7 +311,7 @@ class Ingestion:
             values = {row["term"]: row["value"] for row in rows}
             if not values.get("entity") or not values.get("entity_id_corvus"):
                 return False
-            fund = self.graph.upsert("fund", values["entity"], source_id,
+            self.graph.upsert("fund", values["entity"], source_id,
                                      external_ids={"corvus:legal_entity": values["entity_id_corvus"]},
                                      currency=values.get("currency"))
             return True

@@ -9,7 +9,7 @@ the terms gate in both modes. Run from the repo root after `make up`:
     SURREAL_PROJECT_ADMIN_PASSWORD=localProjectProvisionerOnly SURREAL_PROJECT_SECRET=localProjectCredentialKeyOnly \
     PYTHONPATH=services/ingestion .venv/bin/python scripts/demo/seed.py you@example.com /path/to/fixtures
 """
-import hashlib, os, sys
+import hashlib, sys
 from datetime import date
 from pathlib import Path
 from app.identity import current_identity

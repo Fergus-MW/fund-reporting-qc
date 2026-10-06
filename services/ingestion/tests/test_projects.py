@@ -8,8 +8,8 @@ from unittest.mock import patch
 
 from app.connectors import Item
 from app.extraction import Ingestion
-from app.graph import Graph, key
-from app.project_store import ProjectStore, artifact, project_database
+from app.graph import Graph
+from app.project_store import ProjectStore, project_database
 from app.projects import all_records, materialize, ratify, snapshot
 from app.store import Store
 from app.workflows import run_workflow

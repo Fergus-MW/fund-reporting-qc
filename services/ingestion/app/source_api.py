@@ -1,5 +1,4 @@
 """Authenticated connector handoff: retained bytes -> canonical graph."""
-import json
 from datetime import date
 from pathlib import Path
 from typing import Literal

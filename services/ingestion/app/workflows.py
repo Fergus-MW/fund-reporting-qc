@@ -9,7 +9,6 @@ import subprocess
 import sys
 import uuid
 import zipfile
-from collections import Counter
 from datetime import date, datetime
 from importlib.metadata import version
 from pathlib import Path
@@ -193,7 +192,7 @@ def run_workflow(store, gate, mode, inputs, ratifications=None):
     if previous and previous["status"] == "completed":
         return previous
     token = uuid.uuid4().hex
-    run = store.claim({"key": run_id, "kind": "run", "gate": gate, "mode": mode,
+    store.claim({"key": run_id, "kind": "run", "gate": gate, "mode": mode,
                        "inputs": inputs, "ratifications": ratifications, "runtime": runtime,
                        "started_at": now()}, token)
     try:
