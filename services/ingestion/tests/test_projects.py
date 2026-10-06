@@ -49,6 +49,20 @@ class ProjectValidationTests(unittest.TestCase):
         Ingestion(store.graph, store).ingest(item)
         self.assertEqual(store.get_source_bytes(source_id), item.content)
 
+    def test_unprovisioned_project_is_not_found_rather_than_unavailable(self):
+        import httpx
+        from fastapi import HTTPException
+        from app.project_api import local_store
+        def failing(status, path):
+            request = httpx.Request("POST", "http://db" + path)
+            return httpx.HTTPStatusError("x", request=request, response=httpx.Response(status, request=request))
+        for error, expected in ((failing(401, "/signin"), 404), (failing(500, "/signin"), 503),
+                                (failing(401, "/rpc"), 503), (RuntimeError("down"), 503)):
+            with patch.dict(os.environ, {"SURREAL_PROJECT_SECRET": "unit"}), \
+                 patch("app.project_api.ProjectStore.manifest", side_effect=error), \
+                 self.assertRaises(HTTPException) as raised:
+                local_store("a" * 64)
+            self.assertEqual(raised.exception.status_code, expected)
 
 @unittest.skipUnless(os.environ.get("KG_PROJECT_TESTS") == "1", "Set KG_PROJECT_TESTS=1 with local SurrealDB and partner fixtures")
 class ProjectWorkflowTests(unittest.TestCase):

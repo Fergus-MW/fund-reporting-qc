@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { counts, gatePage, picker } from '../src/dashboard-render.js';
+import { counts, gatePage, picker, request } from '../src/dashboard-render.js';
 
 const check = (id, tier, status, amount = 0, detail = '') =>
   ({ id, tier, status, name: `Check ${id}`, who: amount ? 'Investor A' : '', amount, detail });
@@ -48,4 +48,15 @@ test('picker lists only projects and escapes content', () => {
   assert.match(page, /\/dashboard\/p{64}/);
   assert.doesNotMatch(page, /Workspace|<Kestrel>/);
   assert.match(page, /&lt;Kestrel&gt;/);
+});
+
+test('an absent or malformed project is not found, not a retryable outage', async t => {
+  const original = globalThis.fetch;
+  t.after(() => { globalThis.fetch = original; });
+  for (const [status, missing] of [[404, true], [422, true], [503, false], [401, false]]) {
+    globalThis.fetch = async () => ({ ok: false, status });
+    const error = await request('/api/projects/x/dashboard').catch(caught => caught);
+    assert.equal(error.status, status);
+    assert.equal(error.missing, missing);
+  }
 });

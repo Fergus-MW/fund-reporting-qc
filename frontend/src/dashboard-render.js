@@ -20,10 +20,13 @@ const date = value => {
 export async function request(path, signal) {
   const response = await fetch(path, { credentials: 'same-origin', signal });
   if (!response.ok) {
+    // 422 is a malformed project id: as absent as a 404, and retrying cannot help.
+    const missing = response.status === 404 || response.status === 422;
     const error = new Error(response.status === 401 ? 'Connect your Google account to view your results.'
-      : response.status === 404 ? 'This project has not been prepared for QC yet.'
+      : missing ? 'This project is not in your workspace, or has not been prepared for QC yet.'
       : 'Please try again.');
     error.status = response.status;
+    error.missing = missing;
     throw error;
   }
   return response.json();

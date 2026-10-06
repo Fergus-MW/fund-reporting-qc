@@ -48,7 +48,11 @@ export async function mountDashboard() {
       });
     } catch (error) {
       if (signal.aborted) return;
-      main.innerHTML = `<div class="qc-message" role="alert"><h1>${error.status === 401 ? 'Connect to view QC.' : 'QC is unavailable.'}</h1><p>${escape(error.message)}</p>${error.status === 401 ? '<a class="google-button" href="/api/auth/google/start">Connect to Google</a>' : '<button class="retry-button" type="button">Try again</button>'}</div>`;
+      const title = error.status === 401 ? 'Connect to view QC.' : error.missing ? 'Project not found.' : 'QC is unavailable.';
+      const action = error.status === 401 ? '<a class="google-button" href="/api/auth/google/start">Connect to Google</a>'
+        : error.missing ? '<a class="retry-button" href="/dashboard" data-route>All projects</a>'
+        : '<button class="retry-button" type="button">Try again</button>';
+      main.innerHTML = `<div class="qc-message" role="alert"><h1>${title}</h1><p>${escape(error.message)}</p>${action}</div>`;
       main.querySelector('button')?.addEventListener('click', render, { once: true });
     }
   }
