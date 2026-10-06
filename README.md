@@ -66,9 +66,9 @@ of one investor email changing the terms.
 
 <div align="center">
 
-<a href="docs/media/demo.mp4"><img src="docs/media/demo.gif" alt="Demo: knowledge graphs, then the QC dashboard for Q2 and Q3 2026" width="100%"></a>
+<a href="docs/media/demo.mp4"><img src="docs/media/demo.gif" alt="Demo: the workspace knowledge graph for the Kestrel Lammwick fund" width="100%"></a>
 
-<sub><b><a href="docs/media/demo.mp4">Full-quality MP4 (44 s)</a></b> · recorded against the local stack (<code>make up</code>) using the Kestrel Lammwick partner fixtures. See <a href="#reproduce-the-demo">Reproduce the demo</a>.</sub>
+<sub><b><a href="docs/media/demo.mp4">Full-quality MP4</a></b> · the workspace knowledge graph, recorded against the local stack (<code>make up</code>) using the Kestrel Lammwick partner fixtures. See <a href="#reproduce-the-demo">Reproduce the demo</a>.</sub>
 
 </div>
 
@@ -561,7 +561,7 @@ progress view honestly reports progress as unavailable. Test its logic with
 
 ### Reproduce the demo
 
-The [video](#-see-it-run) runs against this local stack, using the Kestrel Lammwick
+The [video](#-see-it-run) shows the workspace graph on this local stack, using the Kestrel Lammwick
 fixtures from the partner pack, seen from a signed-in workspace. No Google account is
 needed. The proxy only needs a valid `connection` cookie sealed with your local
 `SESSION_KEY`, and the ingestion service still verifies every signed identity assertion.
