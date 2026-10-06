@@ -187,9 +187,14 @@ def ratify(graph, source_id, proposal_id, actor, reason, recorded_on=None):
         raise ValueError("Proposal is " + proposal["status"] + ", not open for ratification")
     if proposal["quote"] not in message_text(graph, source_id)[1]:
         raise ValueError("Proposal quote is no longer present in the message")
-    recorded_on = recorded_on or date.today()
-    # Sibling of propose_for_source(as_of), which takes a date. Accept both here.
-    recorded_on = recorded_on if isinstance(recorded_on, str) else recorded_on.isoformat()
+    # The known-since clock: a stated day is known from its start, so terms_as_of
+    # (known_at) follows that day rather than the wall clock when ratify ran.
+    if recorded_on is None:
+        recorded_on, learned_at = date.today().isoformat(), now()
+    else:
+        # Sibling of propose_for_source(as_of), which takes a date. Accept both here.
+        recorded_on = recorded_on if isinstance(recorded_on, str) else recorded_on.isoformat()
+        learned_at = recorded_on + "T00:00:00+00:00"
     fund_id = graph.resolve(proposal["fund_id"])
     effective = date.fromisoformat(proposal["effective_from"])
     base = next((row for row in register_rows(graph, fund_id, max(effective, date.fromisoformat(recorded_on)))
@@ -217,7 +222,7 @@ def ratify(graph, source_id, proposal_id, actor, reason, recorded_on=None):
     graph.state.sources[account_id] = Source(
         key=account_id, kind="record", provider=source.provider, account=source.account,
         external_id=proposal["investor_id"], revision=proposal_id, filename=source.filename,
-        sha256=key(row), text=json.dumps(row),
+        sha256=key(row), text=json.dumps(row), recorded_at=learned_at,
         metadata={"record_type": "investment_account", "fund_id": fund_id, "investor_name": row["investor_name"],
                   "source_id": source_id, "snapshot_as_of": recorded_on, "ratification": ratification,
                   "ratification_history": history + ([same_day[0].metadata["ratification"]] if same_day else [])})
