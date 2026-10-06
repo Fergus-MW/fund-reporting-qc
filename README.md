@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/media/banner.svg" alt="Private markets QC" width="100%">
+<img src="docs/media/banner.svg" alt="Fund Reporting QC" width="100%">
 
 <br>
 

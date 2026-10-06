@@ -18,7 +18,7 @@
     <circle cx="860" cy="70" r="5"/><circle cx="960" cy="120" r="7"/><circle cx="1050" cy="80" r="4"/>
     <circle cx="1120" cy="160" r="5"/><circle cx="1010" cy="210" r="6"/><circle cx="930" cy="180" r="4"/>
   </g>
-  <text x="70" y="128" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="58" font-weight="600" fill="#f5f1ec" letter-spacing="-1.5">Private markets QC</text>
+  <text x="70" y="128" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="58" font-weight="600" fill="#f5f1ec" letter-spacing="-1.5">Fund Reporting QC</text>
   <text x="72" y="178" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#c9bfc7">Quarterly fund reporting, checked against the side letters and LPA behind it.</text>
   <text x="72" y="236" font-family="'SF Mono', Menlo, Consolas, monospace" font-size="17" fill="#ff8262" letter-spacing="2">KNOWLEDGE GRAPH · RATIFIED TERMS · DETERMINISTIC GATE</text>
 </svg>
