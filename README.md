@@ -14,7 +14,7 @@
 
 **Quarterly fund reporting, checked against the legal documents that govern it.**
 
-[**▶ Watch the demo**](#-see-it-run) · [**Sign in**](https://frontend-gucopvqxoq-nw.a.run.app/) · [**Run it locally**](#run-locally) · [**Demo deck**](Brain_and_Gate_demo.pdf) · [**Contributing**](AGENTS.md)
+[**▶ Watch the demo**](#-see-it-run) · [**Run it locally**](#run-locally) · [**Demo deck**](Brain_and_Gate_demo.pdf) · [**Contributing**](AGENTS.md)
 
 </div>
 
@@ -46,14 +46,9 @@ So the system reads the documents.
 
 ## ▶ Try it
 
-**[Sign in and connect your workspace →](https://frontend-gucopvqxoq-nw.a.run.app/)**
-
-Sign in with Google and it starts building your graph. Nothing to install. Your
-documents stay in your own isolated database, and the connection asks only for
-read access to Gmail and Drive.
-
-While the Google consent screen is unverified, sign-in works for accounts added as
-test users — ask the team to add yours if it turns you away.
+The hosted environment has been taken down. [Run it locally](#run-locally) instead: `make up`
+brings up the whole stack, and [Reproduce the demo](#reproduce-the-demo) seeds a signed-in
+workspace from the partner fixtures.
 
 **Or read the demo deck first: [Brain and Gate](Brain_and_Gate_demo.pdf)** (6 pages) —
 the problem in fund managers' own words, the quarterly GL reporting workflow it plugs
@@ -208,7 +203,7 @@ from day one; it simply becomes a real, frozen graph the first time a workflow r
 
 ### 1. You connect — one button, once
 
-[**frontend-gucopvqxoq-nw.a.run.app**](https://frontend-gucopvqxoq-nw.a.run.app/) is a
+The frontend is a
 single page with a single Google button. It asks for Gmail and Drive **read** access
 together, in one consent screen, because one authorization covers every connector — you
 are never sent back to Google a second time to add another integration. Partial consent
@@ -612,12 +607,8 @@ invented.
 
 ## Deployment
 
-Live services (`private-markets-hack`, `europe-west2`):
-
-| | |
-|---|---|
-| Frontend — public, this is the sign-up link | https://frontend-gucopvqxoq-nw.a.run.app |
-| Ingestion — IAM protected, not browsable | https://document-ingestion-gucopvqxoq-nw.a.run.app |
+The hosted services (`private-markets-hack`, `europe-west2`) have been taken down;
+`infrastructure/` still describes them.
 
 Terraform is the source of truth. Never click in the console, and never deploy
 application code from a workstation — commit and push, and let CI/CD own the image
