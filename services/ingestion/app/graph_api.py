@@ -8,7 +8,7 @@ from pydantic import Field
 
 from app.connectors import GoogleConnector
 from app.extraction import Ingestion
-from app.graph import ENTITIES, Entity, GraphState, Strict
+from app.graph import Entity, GraphState, Strict
 from app.store import GraphStore
 from app.store import SourceTooLarge
 

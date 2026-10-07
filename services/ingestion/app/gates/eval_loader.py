@@ -7,7 +7,7 @@ compares to a reference loader when one exists.
 Usage:
   uv run --with pandas --with openpyxl python3 eval_loader.py <candidate.xlsx> [--sheet "Upload Template"] [--key <reference.xlsx>] [--out results.md]
 """
-import sys, argparse, json, re, hashlib, datetime as dt
+import sys, argparse, json, re
 import numpy as np, pandas as pd
 from pathlib import Path
 

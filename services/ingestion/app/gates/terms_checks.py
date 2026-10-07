@@ -28,7 +28,7 @@ Amount at stake is the tier a total only: tier b amounts are components of the s
 Writes deterministic JSON checks. The project workflow owns artifact retention and audit metadata.
 Exit code 1 when any check FAILs.
 """
-import argparse, sys, json, hashlib, datetime as dt
+import argparse, sys, json, hashlib
 from pathlib import Path
 import numpy as np, pandas as pd
 

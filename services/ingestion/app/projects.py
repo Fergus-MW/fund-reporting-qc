@@ -2,7 +2,6 @@
 import csv
 import io
 import json
-from datetime import date
 
 from app.graph import ENTITIES, Graph, Source, key, now
 from app.project_store import ProjectStore, artifact, link
