@@ -61,9 +61,9 @@ of one investor email changing the terms.
 
 <div align="center">
 
-<a href="docs/media/demo.mp4"><img src="docs/media/demo.gif" alt="Demo: the workspace knowledge graph, then the full Q2 project graph" width="100%"></a>
+<a href="docs/media/demo.mp4"><img src="docs/media/demo.gif" alt="Demo: the Q2 project knowledge graph forming node by node, then a close zoom" width="100%"></a>
 
-<sub><b><a href="docs/media/demo.mp4">Full-quality MP4</a></b> · the workspace and Q2 project knowledge graphs, recorded against the local stack (<code>make up</code>) using the Kestrel Lammwick partner fixtures. See <a href="#reproduce-the-demo">Reproduce the demo</a>.</sub>
+<sub><b><a href="docs/media/demo.mp4">Full-quality MP4</a></b> · the Q2 project knowledge graph (132 nodes, 283 connections) forming node by node, then zooming in close. Recorded against the local stack (<code>make up</code>) using the Kestrel Lammwick partner fixtures. See <a href="#reproduce-the-demo">Reproduce the demo</a>.</sub>
 
 </div>
 
@@ -556,7 +556,7 @@ progress view honestly reports progress as unavailable. Test its logic with
 
 ### Reproduce the demo
 
-The [video](#-see-it-run) shows the knowledge graphs on this local stack, using the Kestrel Lammwick
+The [video](#-see-it-run) shows the Q2 project graph on this local stack, using the Kestrel Lammwick
 fixtures from the partner pack, seen from a signed-in workspace. No Google account is
 needed. The proxy only needs a valid `connection` cookie sealed with your local
 `SESSION_KEY`, and the ingestion service still verifies every signed identity assertion.
@@ -568,7 +568,14 @@ make up && make test-live                       # test-live builds .venv with th
 PYTHONPATH=services/ingestion .venv/bin/python scripts/demo/seed.py you@example.com /path/to/fixtures
 # Seal a session cookie for that workspace, then set it as `connection` on localhost:18081
 node scripts/demo/session.mjs you@example.com
+# Re-record docs/media/demo.mp4 and demo.gif (needs Python Playwright + Chromium and ffmpeg)
+(cd frontend && npx vite --config ../scripts/demo/forming/vite.config.mjs) &
+python scripts/demo/record.py "$(node scripts/demo/session.mjs you@example.com)" Q2_PROJECT_ID
 ```
+
+The recording page (`scripts/demo/forming/`) reuses the frontend's `buildGraph` and the viewer's
+Sigma and ForceAtlas2 settings. It adds the project graph's nodes breadth-first from the
+most connected node while the layout runs, then zooms in.
 
 `make test-live` with the fixtures asserts the figures the demo shows:
 `arithmetic=0 failures, Q2=1, Q3=4`, USD 22,149.55 at stake on Q2, run IDs stable on replay,
